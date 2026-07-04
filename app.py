@@ -132,12 +132,14 @@ class JarvisVideoProcessor(VideoTransformerBase):
 
         return img
 
-# 6. Boot Streamlit Render Element
+# 6. Boot Streamlit Render Element with Correct Network Protocols
 webrtc_streamer(
     key="jarvis-web-core",
     mode=WebRtcMode.SENDRECV,
     video_transformer_factory=JarvisVideoProcessor,
-    rtc_configuration={"iceServers": [{"urls": ["stun:://google.com"]}]},
+    rtc_configuration={
+        "iceServers": [{"urls": ["stun:://google.com"]}]
+    },
     media_stream_constraints={"video": True, "audio": False},
     async_transform=True
 )
