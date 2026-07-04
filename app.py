@@ -140,14 +140,16 @@ webrtc_streamer(
     video_processor_factory=JarvisVideoProcessor,
     rtc_configuration={
         "iceServers": [
-            {
-                "urls": ["stun:stun.l.google.com:19302"]
-            }
+            {"urls": ["stun:stun.l.google.com:19302"]}
         ]
     },
     media_stream_constraints={
-        "video": True,
-        "audio": False
+        "video": {
+            "width": {"ideal": 1280},
+            "height": {"ideal": 720},
+            "frameRate": {"ideal": 30},
+        },
+        "audio": False,
     },
     async_processing=True,
 )
