@@ -137,14 +137,20 @@ class JarvisVideoProcessor(VideoProcessorBase):
 webrtc_streamer(
     key="jarvis-web-core",
     mode=WebRtcMode.SENDRECV,
-    video_processor_factory=JarvisVideoProcessor,  # Updated from video_transformer_factory
+    video_processor_factory=JarvisVideoProcessor,
     rtc_configuration={
-        "iceServers": [{"urls": ["stun:://google.com"]}]
+        "iceServers": [
+            {
+                "urls": ["stun:stun.l.google.com:19302"]
+            }
+        ]
     },
-    media_stream_constraints={"video": True, "audio": False},
-    async_processing=True  # Updated from async_transform
+    media_stream_constraints={
+        "video": True,
+        "audio": False
+    },
+    async_processing=True,
 )
-
 # 7. Web Output Log Area Layout Component Display
 if st.session_state.detection_history:
     st.markdown("### 📋 Captured Session Log Stream")
