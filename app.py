@@ -11,7 +11,7 @@ st.set_page_config(page_title="JARVIS Vision Cloud Core", layout="wide")
 st.title("🧠 JARVIS Vision - Web Control Center")
 st.caption("Cloud Deployment Protocol // Powered by YOLOv8 & Streamlit WebRTC")
 
-# Initialize session state tracking variables for the web environment
+# Initialize session state tracking variables safely
 if "session_start" not in st.session_state:
     st.session_state.session_start = time.time()
 if "total_scans" not in st.session_state:
@@ -21,9 +21,8 @@ if "detection_history" not in st.session_state:
 if "prev_time" not in st.session_state:
     st.session_state.prev_time = time.time()
 
-# 2. Interactive Web Sidebar UI (Replaces cv2.waitKey and keyboard commands)
+# 2. Interactive Web Sidebar UI
 st.sidebar.header("🎛️ JARVIS Main Core Controls")
-
 paused = st.sidebar.checkbox("⏸️ Pause System Pipeline", value=False)
 CONF_THRESHOLD = st.sidebar.slider("🎯 Target Confidence Limit (%)", 10, 95, 40, 5) / 100.0
 
@@ -43,8 +42,8 @@ model = load_yolo_core()
 # 4. Custom Architectural Graphic Engines
 def color_for(label):
     h = abs(hash(label)) % 255
-    color = cv2.cvtColor(np.uint8([[[h, 200, 255]]]), cv2.COLOR_HSV2BGR)[0][0]
-    return int(color[0]), int(color[1]), int(color[2])
+    color = cv2.cvtColor(np.uint8([[[h, 200, 255]]]), cv2.COLOR_HSV2BGR)
+    return int(color[0][0][0]), int(color[0][0][1]), int(color[0][0][2])
 
 def draw_bracket_box(frame, x1, y1, x2, y2, color, thickness=2):
     w, h = x2 - x1, y2 - y1
@@ -56,7 +55,7 @@ def draw_bracket_box(frame, x1, y1, x2, y2, color, thickness=2):
     cv2.line(frame, (x1, y2), (x1 + l, y2), color, thickness)
     cv2.line(frame, (x1, y2), (x1, y2 - l), color, thickness)
     cv2.line(frame, (x2, y2), (x2 - l, y2), color, thickness)
-    cv2.line(frame, (x2, y2), (x2 - l, y2), color, thickness)
+    cv2.line(frame, (x2, y2), (x2, y2 - l), color, thickness)
     
     overlay = frame.copy()
     cv2.rectangle(overlay, (x1, y1), (x2, y2), color, 1)
@@ -132,7 +131,7 @@ class JarvisVideoProcessor(VideoTransformerBase):
 
         return img
 
-# 6. Boot Streamlit Render Element with Correct Network Protocols
+# 6. Boot Streamlit Render Element with Fallback Public STUN Server
 webrtc_streamer(
     key="jarvis-web-core",
     mode=WebRtcMode.SENDRECV,
