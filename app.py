@@ -4,7 +4,7 @@ import numpy as np
 import streamlit as st
 from datetime import datetime
 from ultralytics import YOLO
-from streamlit_webrtc import webrtc_streamer, WebRtcMode, VideoTransformerBase
+from streamlit_webrtc import webrtc_streamer, WebRtcMode, VideoProcessorBase
 
 # 1. Page Configuration and Initialization
 st.set_page_config(page_title="JARVIS Vision Cloud Core", layout="wide")
@@ -67,9 +67,10 @@ def draw_panel(frame, x, y, w, h, alpha=0.45):
     cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
     cv2.rectangle(frame, (x, y), (x + w, y + h), (247, 255, 0), 1)
 
-# 5. Core WebRTC Live Video Processing Loop
-class JarvisVideoProcessor(VideoTransformerBase):
-    def transform(self, frame):
+# 5. Modern WebRTC Live Video Processing Loop (Fixed for newer versions)
+class JarvisVideoProcessor(VideoProcessorBase):
+    def recv(self, frame):
+        # Using the updated '.to_ndarray' method
         img = frame.to_ndarray(format="bgr24")
         img = cv2.flip(img, 1)  # Natural mirror framing matrix
         h_frame, w_frame = img.shape[:2]
@@ -129,18 +130,19 @@ class JarvisVideoProcessor(VideoTransformerBase):
         for idx, entry in enumerate(st.session_state.detection_history):
             cv2.putText(img, entry, (20, h_frame - log_h + 28 + idx * 18), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (200, 200, 200), 1)
 
-        return img
+        # Return the clean modern PyAV VideoFrame object structure
+        return frame.from_ndarray(img, format="bgr24")
 
-# 6. Boot Streamlit Render Element with Fallback Public STUN Server
+# 6. Updated Boot Parameters (Fixed for modern streamlit-webrtc versions)
 webrtc_streamer(
     key="jarvis-web-core",
     mode=WebRtcMode.SENDRECV,
-    video_transformer_factory=JarvisVideoProcessor,
+    video_processor_factory=JarvisVideoProcessor,  # Updated from video_transformer_factory
     rtc_configuration={
         "iceServers": [{"urls": ["stun:://google.com"]}]
     },
     media_stream_constraints={"video": True, "audio": False},
-    async_transform=True
+    async_processing=True  # Updated from async_transform
 )
 
 # 7. Web Output Log Area Layout Component Display
